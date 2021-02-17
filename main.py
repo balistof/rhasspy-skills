@@ -18,10 +18,10 @@ async def get_time(intent: NluIntent):
 
 @app.on_intent("GetWeather")
 async def get_time(intent: NluIntent):
-    return EndSession(f"das muß mir erst jemand lernen")
+    return EndSession(f"das wetter kenn ich noch nicht")
 
 @app.on_intent_not_recognized
 async def not_understood(intent_not_recognized: NluIntentNotRecognized):
-    return EndSession(f"{intent_not_recognized.input} kenne ich nicht")
+    return EndSession(f"tut mir leid das muß ich erst lernen")
 
 app.run()
