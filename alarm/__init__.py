@@ -82,7 +82,7 @@ async def alarm(intent: NluIntent):
         return dialog.responseError(ex)
 
 
-@dialog.app.on_intent("Confirmation")
+@dialog.app.on_intent("AlarmConfirmation")
 async def confirmation(intent: NluIntent):
     print("Confirmation")
     try:
