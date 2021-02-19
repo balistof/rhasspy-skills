@@ -27,7 +27,7 @@ def alarm_timer():
         for entry_id, expired_entry in expired_entries.items():
             expiry = expired_entry["expiry"]
             dialog.app.notify("hallo, ich sollte dich um {} erinnern".format(expiry.strftime("%-H Uhr %-M")),
-                       expired_entry["siteId"])
+                              expired_entry["siteId"])
 
         if len(expired_entries) != 0:
             data = [entry for entry in data if entry["id"] not in expired_entries.keys()]
@@ -70,7 +70,7 @@ async def alarm(intent: NluIntent):
 
         result = ContinueSession()
         result.text = "ich setze einen alarm für {} . ist das richtig?".format(alarm_date_time.strftime("%-H Uhr %-M"))
-        result.intent_filter = ["Confirmation"]
+        result.intent_filter = ["AlarmConfirmation"]
         result.custom_data = json.dumps({"intent": "alarm",
                                          "data": {"siteId": intent.site_id,
                                                   "id": uuid.uuid4().hex,
@@ -82,9 +82,47 @@ async def alarm(intent: NluIntent):
         return dialog.responseError(ex)
 
 
+@dialog.app.on_intent("AlarmList")
+async def list(intent: NluIntent):
+    print("AlarmList")
+    try:
+        with open(alarm_state_file, 'r') as file:
+            data = json.load(file)
+
+        if len(data) == 0:
+            text = "du hast keine alarme gesetzt"
+        else:
+            text = "du hast {} alarme gesetzt. ".format(len(data))
+            for entry in data:
+                date = datetime.strptime(entry["dateTime"], "%Y-%m-%d %H:%M")
+                text += "um {}. ".format(date.strftime("%-H Uhr %-M"))
+        return dialog.responseOK(text)
+    except Exception as ex:
+        return dialog.responseError(ex)
+
+
+@dialog.app.on_intent("AlarmDelete")
+async def list(intent: NluIntent):
+    print("AlarmDelete")
+    try:
+        with open(alarm_state_file, 'r') as file:
+            data = json.load(file)
+
+        if len(data) == 0:
+            text = "du hast keine alarme gesetzt"
+        else:
+            with open(alarm_state_file, 'w') as file:
+                json.dump([], file)
+            text = "lösche {} alarme".format(len(data))
+
+        return dialog.responseOK(text)
+    except Exception as ex:
+        return dialog.responseError(ex)
+
+
 @dialog.app.on_intent("AlarmConfirmation")
 async def confirmation(intent: NluIntent):
-    print("Confirmation")
+    print("AlarmConfirmation")
     try:
         session_data_raw = session_store.pop(intent.session_id, None)
         if session_data_raw is None or len(intent.slots) < 1:
@@ -113,4 +151,3 @@ async def confirmation(intent: NluIntent):
         return dialog.responseOK("das muß der Christoph mir erst beibringen")
     except Exception as ex:
         return dialog.responseError(ex)
-

@@ -8,7 +8,7 @@ async def joke(intent: NluIntent):
     print("Joke")
     try:
         # feed = feedparser.parse("https://www.hahaha.de/witze/neuestewitze.xml")
-        # text = random.choice(feed["entries"])["summary"]
+        # text = random_skill.choice(feed["entries"])["summary"]
         text = pyjokes.get_joke(language="de")
         return dialog.responseOK(text)
     except Exception as ex:

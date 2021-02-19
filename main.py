@@ -7,6 +7,7 @@ import radio
 import shutters
 import time_skill
 import weather
+import random_skill
 
 
 dialog.run()
