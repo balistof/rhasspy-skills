@@ -2,7 +2,7 @@ from rhasspyhermes.nlu import NluIntentNotRecognized
 from rhasspyhermes_app import EndSession, HermesApp
 import random
 
-ok_messages = ["alles klar", "mach ich", "gerne", "kommt sofort", "bitteschön", "wird gemacht"]
+ok_messages = ["ok", "alles klar", "mach ich", "gerne", "kommt sofort", "bitteschön", "wird gemacht"]
 
 app = HermesApp("main")
 

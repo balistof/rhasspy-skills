@@ -124,8 +124,10 @@ async def list(intent: NluIntent):
 async def confirmation(intent: NluIntent):
     print("AlarmConfirmation")
     try:
+        if len(intent.slots) < 1:
+            return dialog.responseOK("ok")
         session_data_raw = session_store.pop(intent.session_id, None)
-        if session_data_raw is None or len(intent.slots) < 1:
+        if session_data_raw is None:
             return dialog.responseError()
 
         if intent.slots[0].value["value"] == "dismiss":
