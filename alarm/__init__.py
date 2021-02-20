@@ -92,7 +92,10 @@ async def list(intent: NluIntent):
         if len(data) == 0:
             text = "du hast keine alarme gesetzt"
         else:
-            text = "du hast {} alarme gesetzt. ".format(len(data))
+            if len(data) == 1:
+                text = "du hast einen alarm gesetzt "
+            else:
+                text = "du hast {} alarme gesetzt ".format(len(data))
             for entry in data:
                 date = datetime.strptime(entry["dateTime"], "%Y-%m-%d %H:%M")
                 text += "um {}. ".format(date.strftime("%-H Uhr %-M"))
