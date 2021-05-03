@@ -2,3 +2,4 @@ rhasspy-hermes-app
 requests
 feedparser
 pyjokes
+mopidyapi

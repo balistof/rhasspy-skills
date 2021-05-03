@@ -1,7 +1,10 @@
 import dialog
 import requests
+import mopidyapi
 from rhasspyhermes.nlu import NluIntent
+import time
 
+mopidy = mopidyapi.MopidyAPI(host='192.168.0.157', use_websocket=False)
 
 @dialog.app.on_intent("RadioOnOff")
 async def radio_on_off(intent: NluIntent):
@@ -14,6 +17,7 @@ async def radio_on_off(intent: NluIntent):
         on_off = "PowerStandby"
     url = "http://192.168.0.213/goform/formiPhoneAppPower.xml?1+{}".format(on_off)
     response = requests.get(url)
+    mopidy.tracklist.clear()
     if response.ok:
         return dialog.responseOK()
     else:
@@ -50,5 +54,46 @@ async def radio_favorite(intent: NluIntent):
         return dialog.responseOK()
     else:
         return dialog.responseError()
+
+@dialog.app.on_intent("PlayInternetRadio")
+async def radio_mopidy(intent: NluIntent):
+    print("PlayInternetRadio")
+    if len(intent.slots) == 0 or intent.slots[0].slot_name != "station":
+        return dialog.EndSession(f"du mußt einen kanal angeben")
+
+    channel = intent.slots[0].value["value"]
+    if channel == "ö 3":
+        mopidy_uri = "tunein:station:s8007"
+    elif channel == "krone hit":
+        mopidy_uri = "tunein:station:s218146"
+    elif channel == "kinder radio":
+        mopidy_uri = "tunein:station:s267651"
+    elif channel == "fm 4":
+        mopidy_uri = "tunein:station:s8235"
+    elif channel == "radio osttirol":
+        mopidy_uri = "tunein:station:s15545"
+    else:
+        return dialog.responseOK("den kanal {} kenne ich nicht".format(channel))
+
+    # first switch radio on; if needed
+    status_url = "http://192.168.0.213/goform/formMainZone_MainZoneXml.xml"
+    response = requests.get(status_url)
+    if "<Power><value>STANDBY</value></Power>" in response.text:
+        if not requests.get("http://192.168.0.213/goform/formiPhoneAppPower.xml?1+PowerOn").ok:
+            return dialog.responseError()
+        time.sleep(5)
+
+    # then set to aux in
+    url = "http://192.168.0.213/goform/formiPhoneAppDirect.xml?SIANALOGIN"
+    response = requests.get(url)
+    if not response.ok:
+        return dialog.responseError()
+
+    # finally use the station name to switch to it
+    mopidy.tracklist.clear()
+    mopidy.tracklist.add(uris=[mopidy_uri])
+    mopidy.playback.play(tlid=1)
+    return dialog.responseOK()
+
 
 
