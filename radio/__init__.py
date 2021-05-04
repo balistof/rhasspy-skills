@@ -101,8 +101,13 @@ async def radio_mopidy(intent: NluIntent):
 
     state = mopidy.playback.get_state()
     if state == "playing":
-        album = mopidy.playback.get_current_track().album.name
-        return dialog.responseOK("es läuft {}".format(album))
+        title = mopidy.playback.get_current_track().album.name.lower()
+        stream_title = mopidy.playback.get_stream_title()
+        if stream_title is not None:
+            stream_title = stream_title.lower()
+            if title not in stream_title and "adbreak" not in stream_title:
+                title += " - " + mopidy.playback.get_stream_title()
+        return dialog.responseOK("es läuft {}".format(title))
     else:
         return dialog.responseOK("ich spiele gerade nichts")
 
