@@ -95,5 +95,14 @@ async def radio_mopidy(intent: NluIntent):
     mopidy.playback.play(tlid=1)
     return dialog.responseOK()
 
+@dialog.app.on_intent("RadioCurrentlyPlayed")
+async def radio_mopidy(intent: NluIntent):
+    print("RadioCurrentlyPlayed")
 
+    state = mopidy.playback.get_state()
+    if state == "playing":
+        album = mopidy.playback.get_current_track().album.name
+        return dialog.responseOK("es läuft {}".format(album))
+    else:
+        return dialog.responseOK("ich spiele gerade nichts")
 
